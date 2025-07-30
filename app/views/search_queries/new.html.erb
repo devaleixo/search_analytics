@@ -1,0 +1,25 @@
+<h1>Search</h1>
+<input type="text" id="search-input" placeholder="Search here..." />
+
+<script>
+  let timeout = null;
+  const input = document.getElementById('search-input');
+
+  input.addEventListener('input', (e) => {
+    clearTimeout(timeout);
+
+    timeout = setTimeout(() => {
+      const query = e.target.value.trim();
+      if (query.length === 0) return;
+
+      fetch('/search_queries', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify({ query: query })
+      });
+    }, 600); // debounce
+  });
+</script>
