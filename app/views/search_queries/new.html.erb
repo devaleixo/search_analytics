@@ -1,10 +1,45 @@
-<h1>Search</h1>
-<input type="text" id="search-input" placeholder="Search here..." />
+<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh;">
+  <h1 style="font-size: 4rem; font-weight: bold; margin-bottom: 20px;">Juugle</h1>
+  <input type="text" id="search-input" placeholder="Search here..." style="width: 80%; padding: 10px; font-size: 1.5rem;" list="top-queries" />
+  <datalist id="top-queries">
+    <% @queries.each do |query, count| %>
+      <option value="<%= query %>">
+    <% end %>
+  </datalist>
+</div>
 
 <script>
   let timeout = null;
+  let autocompleteTimeout = null;
   const input = document.getElementById('search-input');
+  const topQueriesDataList = document.getElementById('top-queries');
 
+  // Update datalist on every input with debounce for autocomplete
+  input.addEventListener('input', function(e) {
+    const value = e.target.value.trim();
+
+    // Clear the datalist immediately
+    topQueriesDataList.innerHTML = '';
+
+    if (value.length === 0) {
+      return;
+    }
+
+    clearTimeout(autocompleteTimeout);
+    autocompleteTimeout = setTimeout(() => {
+      fetch(`/search_queries/autocomplete?term=${encodeURIComponent(value)}`)
+        .then(response => response.json())
+        .then(queries => {
+          queries.forEach(query => {
+            const option = document.createElement('option');
+            option.value = query;
+            topQueriesDataList.appendChild(option);
+          });
+        });
+    }, 50);
+  });
+
+  // The existing event listener for the search submission (with debounce) remains
   input.addEventListener('input', (e) => {
     clearTimeout(timeout);
 

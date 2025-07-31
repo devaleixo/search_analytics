@@ -12,6 +12,7 @@ Rails.application.routes.draw do
   # Defines the root path route ("/")
   root "search_queries#new"
 
+  get 'search_queries/autocomplete', to: 'search_queries#autocomplete'
 
   resources :search_queries, only: [:create, :new]
 end

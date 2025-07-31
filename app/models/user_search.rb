@@ -4,6 +4,7 @@ class UserSearch < ApplicationRecord
 
     def self.clean_pyramid_queries_for(ip_address)
         user_searches = where(ip_address: ip_address)
+                        .where(created_at: 2.minutes.ago..Time.current)
                         .order(created_at: :desc)
       
         to_keep = []
@@ -25,10 +26,23 @@ class UserSearch < ApplicationRecord
           end
         end
       
-        # Exclui os registros que não fazem parte do conjunto "válido"
         where(ip_address: ip_address)
           .where.not(id: to_keep.map(&:id))
           .destroy_all
       end
-      
+
+  def self.remove_duplicates_for(ip_address)
+    searches = where(ip_address: ip_address).order(created_at: :desc)
+    
+    to_keep = searches.each_with_object({}) do |search, hash|
+      normalized = search.query.strip.downcase
+      if !hash[normalized] || search.created_at > hash[normalized].created_at
+        hash[normalized] = search
+      end
+    end.values
+    
+    where(ip_address: ip_address)
+      .where.not(id: to_keep.map(&:id))
+      .destroy_all
+  end
 end
