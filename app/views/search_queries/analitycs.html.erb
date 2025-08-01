@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Analytics Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 10px;
+        }
+
+        .search-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background-color 0.3s ease;
+        }
+
+        .search-item:hover {
+            background-color: #f8f9ff;
+            border-radius: 8px;
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+
+        .search-item:last-child {
+            border-bottom: none;
+        }
+
+        .search-term {
+            font-weight: 500;
+            color: #333;
+            flex: 1;
+        }
+
+        .search-count {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .trends-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 40px;
+        }
+
+        .trend-bar {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .trend-date {
+            width: 100px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .trend-visual {
+            flex: 1;
+            height: 25px;
+            background: #f0f0f0;
+            border-radius: 12px;
+            margin: 0 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .trend-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 12px;
+            transition: width 0.8s ease;
+        }
+
+        .trend-count {
+            font-weight: 600;
+            color: #667eea;
+            min-width: 40px;
+        }
+
+        .phrases-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .phrase-item {
+            background: linear-gradient(135deg, #f8f9ff, #fff);
+            border: 1px solid #e0e7ff;
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .phrase-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
+        }
+
+        .phrase-text {
+            font-size: 1.1rem;
+            color: #333;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .phrase-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .refresh-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 15px 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .refresh-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+            color: white;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top: 4px solid white;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="header">
+            <h1>🔍 Search Analytics Dashboard</h1>
+            <p>Discover what people are searching for</p>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Loading analytics data...</p>
+        </div>
+
+        <div id="dashboard-content">
+            <!-- Stats Overview -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="total-searches"><%= @analytics[:total_searches] %></div>
+                    <div class="stat-label">Total Searches</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="unique-users"><%= @analytics[:unique_users] %></div>
+                    <div class="stat-label">Unique Users</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="popular-terms"><%= @analytics[:most_searched_terms].length %></div>
+                    <div class="stat-label">Popular Terms</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="recent-searches"><%= @analytics[:recent_searches].length %></div>
+                    <div class="stat-label">Recent Searches</div>
+                </div>
+            </div>
+
+            <!-- Main Content Grid -->
+            <div class="content-grid">
+                <!-- Most Searched Terms -->
+                <div class="card">
+                    <h2>🔥 Most Searched Terms</h2>
+                    <div id="most-searched-terms">
+                        <% @analytics[:most_searched_terms].each do |item| %>
+                            <div class="search-item">
+                                <span class="search-term"><%= item[:term] %></span>
+                                <span class="search-count"><%= item[:count] %></span>
+                            </div>
+                        <% end %>
+                    </div>
+                </div>
+
+                <!-- Recent Searches -->
+                <div class="card">
+                    <h2>⏰ Recent Searches (24h)</h2>
+                    <div id="recent-searches">
+                        <% @analytics[:recent_searches].each do |item| %>
+                            <div class="search-item">
+                                <span class="search-term"><%= item[:term] %></span>
+                                <span class="search-count"><%= item[:count] %></span>
+                            </div>
+                        <% end %>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search Trends -->
+            <div class="trends-container">
+                <h2>📈 Search Trends (Last 7 Days)</h2>
+                <div id="search-trends">
+                    <% max_count = @analytics[:search_trends].values.max %>
+                    <% @analytics[:search_trends].each do |date, count| %>
+                        <div class="trend-bar">
+                            <div class="trend-date"><%= Date.parse(date).strftime('%m/%d') %></div>
+                            <div class="trend-visual">
+                                <div class="trend-fill" style="width: <%= max_count > 0 ? (count.to_f / max_count * 100) : 0 %>%"></div>
+                            </div>
+                            <div class="trend-count"><%= count %></div>
+                        </div>
+                    <% end %>
+                </div>
+            </div>
+
+            <!-- Popular Phrases -->
+            <div class="card">
+                <h2>💬 Popular Phrases</h2>
+                <div class="phrases-grid" id="popular-phrases">
+                    <% @analytics[:popular_phrases].each do |item| %>
+                        <div class="phrase-item">
+                            <div class="phrase-text">"<%= item[:phrase] %>"</div>
+                            <div class="phrase-meta">
+                                <span>Length: <%= item[:phrase].length %> chars</span>
+                                <span class="search-count"><%= item[:count] %> searches</span>
+                            </div>
+                        </div>
+                    <% end %>
+                </div>
+            </div>
+        </div>
+
+        <button class="refresh-btn" onclick="refreshData()">
+            🔄 Refresh Data
+        </button>
+    </div>
+
+    <script>
+        // Auto-refresh functionality
+        function refreshData() {
+            const loading = document.getElementById('loading');
+            const content = document.getElementById('dashboard-content');
+            
+            loading.style.display = 'block';
+            content.style.opacity = '0.5';
+            
+            fetch('/search_queries/analitycs', {
+                headers: {
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                updateDashboard(data);
+                loading.style.display = 'none';
+                content.style.opacity = '1';
+            })
+            .catch(error => {
+                console.error('Error refreshing data:', error);
+                loading.style.display = 'none';
+                content.style.opacity = '1';
+            });
+        }
+
+        function updateDashboard(data) {
+            // Update stats
+            document.getElementById('total-searches').textContent = data.total_searches;
+            document.getElementById('unique-users').textContent = data.unique_users;
+            document.getElementById('popular-terms').textContent = data.most_searched_terms.length;
+            document.getElementById('recent-searches').textContent = data.recent_searches.length;
+
+            // Update most searched terms
+            updateSearchList('most-searched-terms', data.most_searched_terms);
+            
+            // Update recent searches
+            updateSearchList('recent-searches', data.recent_searches);
+            
+            // Update trends
+            updateTrends(data.search_trends);
+            
+            // Update phrases
+            updatePhrases(data.popular_phrases);
+        }
+
+        function updateSearchList(containerId, items) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            
+            items.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'search-item';
+                div.innerHTML = `
+                    <span class="search-term">${item.term}</span>
+                    <span class="search-count">${item.count}</span>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function updateTrends(trends) {
+            const container = document.getElementById('search-trends');
+            const maxCount = Math.max(...Object.values(trends));
+            container.innerHTML = '';
+            
+            Object.entries(trends).forEach(([date, count]) => {
+                const div = document.createElement('div');
+                div.className = 'trend-bar';
+                const percentage = maxCount > 0 ? (count / maxCount * 100) : 0;
+                const formattedDate = new Date(date).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
+                
+                div.innerHTML = `
+                    <div class="trend-date">${formattedDate}</div>
+                    <div class="trend-visual">
+                        <div class="trend-fill" style="width: ${percentage}%"></div>
+                    </div>
+                    <div class="trend-count">${count}</div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function updatePhrases(phrases) {
+            const container = document.getElementById('popular-phrases');
+            container.innerHTML = '';
+            
+            phrases.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'phrase-item';
+                div.innerHTML = `
+                    <div class="phrase-text">"${item.phrase}"</div>
+                    <div class="phrase-meta">
+                        <span>Length: ${item.phrase.length} chars</span>
+                        <span class="search-count">${item.count} searches</span>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // Auto-refresh every 30 seconds
+        setInterval(refreshData, 30000);
+
+        // Add some animation on load
+        window.addEventListener('load', function() {
+            const cards = document.querySelectorAll('.stat-card, .card, .trends-container');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                
+                setTimeout(() => {
+                    card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        });
+    </script>
+</body>
+</html>
