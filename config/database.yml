@@ -79,7 +79,7 @@ test:
 # for a full overview on how database connection configuration can be specified.
 #
 production:
-  primary:
+  primary: &primary
     <<: *default
     database: <%= ENV["DATABASE_NAME"] %>
     username: <%= ENV["DATABASE_USERNAME"] %>
